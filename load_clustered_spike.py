@@ -7,11 +7,25 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 import pandas as pd
 
+#%% FUNCTIONS
+def count_spikes(spike_times, stim_intervals) -> dict[str, list]:
+    """
+    For a cluster, count the number of times the unit spiked for each stimulus
+    """
+    stim_counts = {
+        stim: spike_times[np.any(
+            (spike_times[:, None] >= intervals[:, 0]) &
+            (spike_times[:, None] <= intervals[:, 1]),
+            axis=1
+        )]
+        for stim, intervals in stim_intervals.items()
+    }
+    return stim_counts
+
 #%% I/O PATHS
 ppt_num = "003"
 sensor = 0
-
-data_path = "/home/adam/workspace/ucl/processed_data/"
+data_path = "/home/adam/workspace/ucl/spike_clustering/processed_data/"
 ppt_sensor_path = f"{data_path}/ppt{ppt_num}/ppt{ppt_num}_sensor{sensor}"
 
 #%% LOAD CLUSTERED SPIKES
@@ -47,15 +61,7 @@ def sort_cluster_times(cluster_indx, times) -> dict[str, int]:
 neg_clusters = sort_cluster_times(neg_cluster_indx, neg_times)
 pos_clusters = sort_cluster_times(pos_cluster_indx, pos_times)
 
-#%% PLOT INDIVIDUAL SPIKES
-waveform = neg_spikes[5]  
-plt.plot(waveform)
-plt.xlabel("Time")
-plt.ylabel("Amplitude")
-plt.show()
-
 #%% LOAD BEHAVIOURAL DATA
-# Load the .mat file
 behave_data = loadmat(
     "./screeningData/20191202-041757-003-screeningData.mat",
     struct_as_record=False,
@@ -73,24 +79,7 @@ stim = behave_output.stimulus # shape: 50; stimulus names
 #%% DICTIONAIRES FOR COUNTING SPIKES
 stim_intervals = dict(zip(stim, pres_time))
 
-#%% VECTORISE SPIKE COUNTING (FASTER)
-# produces the same dictionary as the block above but in a faster vectorised way.
-# Better for larger datasets but less readable.
-def count_spikes(spike_times, stim_intervals) -> dict[str, list]:
-    """
-    For a cluster, count the number of times the unit spiked for each stimulus
-    """
-    stim_counts = {
-        stim: spike_times[np.any(
-            (spike_times[:, None] >= intervals[:, 0]) &
-            (spike_times[:, None] <= intervals[:, 1]),
-            axis=1
-        )]
-        for stim, intervals in stim_intervals.items()
-    }
-    return stim_counts
-
-#%%
+#%% COUNT SPIKES
 spikes_per_cluster = {key: None for key, _ in neg_clusters.items()}
 
 for cluster, spikes in neg_clusters.items():
@@ -105,5 +94,4 @@ rows = [
 
 # create DataFrame
 df = pd.DataFrame(rows)
-
 df["total_spikes"] = df["spike_times"].apply(len)
