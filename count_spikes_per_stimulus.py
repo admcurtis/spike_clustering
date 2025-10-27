@@ -6,24 +6,30 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 import pandas as pd
 from count_spikes import count_spikes
+from glob import glob
 
 #%% I/O PATHS
-ppt_num = "003"
-sensor = 0
+ppt_num = "001"
+sensor = 3
 data_path = "/home/adam/workspace/ucl/spike_clustering/processed_data/"
-ppt_sensor_path = f"{data_path}/ppt{ppt_num}/ppt{ppt_num}_sensor{sensor}"
+
+
+ppt_sensor_paths = f"{data_path}/ppt{ppt_num}/ppt{ppt_num}_sensor{sensor}"
 
 #%% LOAD CLUSTERED SPIKES
-ppt_data = h5py.File(f"{ppt_sensor_path}/data_ppt003_sensor0.h5", "r") 
+ppt_data = h5py.File(f"{ppt_sensor_path}/data_ppt001_sensor3.h5", "r") 
 list(ppt_data.items())
 
 #%% SORTING DATA
-neg_sort_file = f"{ppt_sensor_path}/sort_neg_simple/sort_cat.h5"
-neg_sort_data = h5py.File(neg_sort_file, "r")
+try:
+    neg_sort_file = f"{ppt_sensor_path}/sort_neg_simple/sort_cat.h5"
+    neg_sort_data = h5py.File(neg_sort_file, "r")
+    pos_sort_file = f"{ppt_sensor_path}/sort_pos_simple/sort_cat.h5"
+    pos_sort_data = h5py.File(pos_sort_file, "r")
+except FileNotFoundError:
+    print(f"No units detected for ppt{ppt_num} sensor{sensor}")
 
-pos_sort_file = f"{ppt_sensor_path}/sort_pos_simple/sort_cat.h5"
-pos_sort_data = h5py.File(pos_sort_file, "r")
-
+#%% INDICES OF SPIKES IN EACH CLUSTER
 neg_cluster_indx = np.array(neg_sort_data["classes"])
 pos_cluster_indx = np.array(pos_sort_data["classes"])
 
@@ -45,6 +51,9 @@ def sort_cluster_times(cluster_indx, times) -> dict[str, int]:
 
 neg_clusters = sort_cluster_times(neg_cluster_indx, neg_times)
 pos_clusters = sort_cluster_times(pos_cluster_indx, pos_times)
+
+if not neg_clusters:
+    ...
 
 #%% LOAD BEHAVIOURAL DATA
 behave_data = loadmat(
@@ -79,4 +88,5 @@ rows = [
 
 # create DataFrame
 df = pd.DataFrame(rows)
+df.insert(0, "ppt", ppt_num)
 df["total_spikes"] = df["spike_times"].apply(len)
