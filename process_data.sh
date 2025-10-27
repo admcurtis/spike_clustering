@@ -1,8 +1,8 @@
 #!bin/bash/
 
 # set paths required by combinato
-PATH=$PATH:/home/adam/workspace/ucl/combinato
-PYTHONPATH=$PYTHONPATH:/home/adam/workspace/ucl/combinato
+PATH=$PATH:/home/adam/workspace/ucl/spike_clustering/combinato
+PYTHONPATH=$PYTHONPATH:/home/adam/workspace/ucl/spike_clustering/combinato
 export PATH PYTHONPATH
 
 # loop over .mat files and extract spikes
@@ -24,7 +24,6 @@ for directory in */; do
 
     cd ..
 done
-
 
 
 
