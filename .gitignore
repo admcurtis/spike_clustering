@@ -5,3 +5,5 @@ css_gui_log.txt
 ieeg_data/
 processed_data/
 screeningData/
+__pycache__
+.vscode

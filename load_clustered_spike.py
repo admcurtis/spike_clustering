@@ -1,26 +1,11 @@
 #%% DEPENDENCIES
-# type: ignore
 from scipy.io import loadmat
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import pandas as pd
-
-#%% FUNCTIONS
-def count_spikes(spike_times, stim_intervals) -> dict[str, list]:
-    """
-    For a cluster, count the number of times the unit spiked for each stimulus
-    """
-    stim_counts = {
-        stim: spike_times[np.any(
-            (spike_times[:, None] >= intervals[:, 0]) &
-            (spike_times[:, None] <= intervals[:, 1]),
-            axis=1
-        )]
-        for stim, intervals in stim_intervals.items()
-    }
-    return stim_counts
+from count_spikes import count_spikes
 
 #%% I/O PATHS
 ppt_num = "003"
