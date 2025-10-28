@@ -1,16 +1,19 @@
 #%% DEPENDENCIES
 from scipy.io import loadmat
-import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import pandas as pd
 from count_spikes import count_spikes
 from glob import glob
+import os
+os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE" # prevent errors loading H5 in WSL
+import h5py
 
 #%% I/O PATHS
 data_path = "./processed_data/"
 sensor_paths = glob(f"{data_path}*/*/", recursive = True)
+sensor_paths = [os.path.normpath(path) for path in sensor_paths]
 
 #%% FUNCTION
 def sort_cluster_times(cluster_indx, times) -> dict[str, int]:
@@ -23,8 +26,8 @@ def sort_cluster_times(cluster_indx, times) -> dict[str, int]:
 all_dfs = []
 for sensor_path in sensor_paths:
 
-    ppt_num = sensor_path.split("/")[-3][3:]
-    sensor = sensor_path.split("/")[-2][13:]
+    ppt_num = sensor_path.split(os.sep)[-2][3:]
+    sensor = sensor_path.split(os.sep)[-1][13:]
 
     # --- load h5 data containing spikes ---
     ppt_data = h5py.File(f"{sensor_path}/data_ppt{ppt_num}_sensor{sensor}.h5", "r") 
@@ -60,7 +63,7 @@ for sensor_path in sensor_paths:
         continue
     
     behave_data = loadmat(
-        f"./screeningData/{ppt_num}-screeningData.mat",
+        f"./screeningData/20191202-041757-{ppt_num}-screeningData.mat",
         struct_as_record=False,
         squeeze_me=True
     )
@@ -93,5 +96,4 @@ for sensor_path in sensor_paths:
 
 final_df = pd.concat(all_dfs, ignore_index=True)
 final_df.to_csv("./spike_counts.csv", index=False)
-
 

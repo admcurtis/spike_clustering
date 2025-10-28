@@ -1,10 +1,14 @@
 #!bin/bash/
 
-# set paths required by combinato
-PATH=$PATH:/home/adam/workspace/ucl/spike_clustering/combinato
-PYTHONPATH=$PYTHONPATH:/home/adam/workspace/ucl/spike_clustering/combinato
+# Get the directory containing this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Add to PATH and PYTHONPATH
+PATH=$PATH:$SCRIPT_DIR/combinato
+PYTHONPATH=$PYTHONPATH:$SCRIPT_DIR/combinato
 export PATH PYTHONPATH
 
+# Loop over participants and perform clustering
 for ppt_dir in */; do
 
     cd $ppt_dir
