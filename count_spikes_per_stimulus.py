@@ -9,7 +9,7 @@ from count_spikes import count_spikes
 from glob import glob
 
 #%% I/O PATHS
-data_path = "/home/adam/workspace/ucl/spike_clustering/processed_data/"
+data_path = "./processed_data/"
 sensor_paths = glob(f"{data_path}*/*/", recursive = True)
 
 #%% FUNCTION
