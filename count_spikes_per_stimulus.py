@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
 import pandas as pd
-from count_spikes import count_spikes
+import count_spikes
 from glob import glob
 import os
 os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE" # prevent errors loading H5 in WSL
@@ -78,7 +78,7 @@ for sensor_path in sensor_paths:
     spikes_per_cluster = {key: None for key, _ in neg_clusters.items()}
 
     for cluster, spikes in neg_clusters.items():
-        spikes_per_cluster[cluster] = count_spikes(spikes, stim_intervals)
+        spikes_per_cluster[cluster] = count_spikes.count_spikes(spikes, stim_intervals)
 
     # --- create dataframe of the counted spikes ---
     rows = [
@@ -90,7 +90,33 @@ for sensor_path in sensor_paths:
     df = pd.DataFrame(rows)
     df.insert(0, "sensor", sensor)
     df.insert(0, "ppt", ppt_num)
-    df["total_spikes"] = df["spike_times"].apply(len)
+
+    # all_intervals = np.array([
+    #     interval 
+    #     for stim_interval in stim_intervals.values()
+    #     for interval in stim_interval
+    # ])
+    # baseline_intervals = [[i[0] - 0.7, i[0]] for i in all_intervals]
+
+    # df["stim_times"] = [
+    #     stim_intervals[stim] if stim != "BASELINE" else baseline_intervals
+    #     for stim in df["stimulus"] 
+    #     ]
+    
+    df["total_spikes"] = df["spike_times"].apply(lambda x: [len(i) for i in x])
+
+    def conditional_extend(row):
+        n = 300 if row["stimulus"] == "BASELINE" else 6
+        l = row["total_spikes"].copy()
+        l.extend([0] * n)
+        l = l[:n]
+        return l
+
+    df["total_spikes"] = df.apply(conditional_extend, axis=1)
+
+    df["mean_spikes"] = df["total_spikes"].apply(np.mean)
+    df["median_spikes"] = df["total_spikes"].apply(np.median)
+    df["std_spikes"] = df["total_spikes"].apply(np.std)
 
     all_dfs.append(df)
 
