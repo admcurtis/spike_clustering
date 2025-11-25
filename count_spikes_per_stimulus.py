@@ -37,6 +37,8 @@ def add_units_with_no_spikes(row):
     For some presentations there were no spikes. This function adds those 0's to the list
     to ensure all lists are of appropriate length. This is required for calculating
     the descriptive stats.
+
+    This is a bit hacky but it works. 
     """
 
     n = 300 if row["stimulus"] == "BASELINE" else 6
