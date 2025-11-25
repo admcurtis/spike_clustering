@@ -44,7 +44,7 @@ def count_spikes(spike_times, stim_intervals) -> dict[str, list]:
     ])
 
     # Baseline: -700ms - 0ms 
-    # all spikes that are less that stim onset but greater than onset - 0.7
+    # all spikes that are less than stim onset but greater than onset - 0.7
     baseline_spikes = spike_times[np.any(
             (spike_times[:, None] <= all_intervals[:, 0]) &
             (spike_times[:, None] >= all_intervals[:, 0] - 0.7),
