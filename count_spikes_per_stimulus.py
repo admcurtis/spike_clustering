@@ -133,5 +133,5 @@ for sensor_path in sensor_paths:
 final_df = pd.concat(all_dfs, ignore_index=True)
 
 #%% Save
-final_df.to_csv("./spike_counts2.csv", index=False)
+final_df.to_csv("./spike_counts.csv", index=False)
 
