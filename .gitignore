@@ -8,3 +8,4 @@ screeningData/
 __pycache__
 .vscode
 spike_counts.csv
+processed_data_no_artefact_rejection/

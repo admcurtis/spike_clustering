@@ -10,7 +10,7 @@ import h5py
 
 #%% I/O PATHS
 data_path = "./processed_data/"
-sensor_paths = glob(f"{data_path}*/*/", recursive = True)
+sensor_paths = glob(f"{data_path}*/ppt*/", recursive = True)
 sensor_paths = [os.path.normpath(path) for path in sensor_paths]
 
 #%% FUNCTIONS
