@@ -53,6 +53,7 @@ for sensor_path in sensor_paths:
 
     ppt_num = sensor_path.split(os.sep)[-2][3:]
     sensor = sensor_path.split(os.sep)[-1][13:]
+    print(ppt_num, sensor)
 
     # load h5 data containing spikes
     ppt_data = h5py.File(f"{sensor_path}/data_ppt{ppt_num}_sensor{sensor}.h5", "r") 
@@ -61,27 +62,24 @@ for sensor_path in sensor_paths:
     neg_spikes = ppt_data["neg"]["spikes"][:]
     neg_times = ppt_data["neg"]["times"][:] / 1000 # convert ms to seconds
 
-    # spikes with positive deflections
-    pos_spikes = ppt_data["pos"]["spikes"][:]
-    pos_times = ppt_data["pos"]["times"][:] / 1000 # convert ms to seconds
+    if "artifacts" in ppt_data["neg"]:
+        neg_artifacts = ppt_data["neg"]["artifacts"][:]
+        neg_spikes = neg_spikes[neg_artifacts == 0, :]
+        neg_times = neg_times[neg_artifacts == 0]
 
     # load sorting file containing cluster labels
     try:
-        neg_sort_file = f"{sensor_path}/sort_neg_simple/sort_cat.h5"
+        neg_sort_file = f"{sensor_path}/sort_neg_ada/sort_cat.h5"
         neg_sort_data = h5py.File(neg_sort_file, "r")
-        pos_sort_file = f"{sensor_path}/sort_pos_simple/sort_cat.h5"
-        pos_sort_data = h5py.File(pos_sort_file, "r")
     except FileNotFoundError:
         print(f"No units detected for ppt{ppt_num} sensor{sensor}")
         continue
 
     # labels for which spikes are in which cluster
     neg_cluster_indx = np.array(neg_sort_data["classes"])
-    pos_cluster_indx = np.array(pos_sort_data["classes"])
 
     # Sort the spikes into thier clusters
     neg_clusters = sort_cluster_times(neg_cluster_indx, neg_times)
-    pos_clusters = sort_cluster_times(pos_cluster_indx, pos_times)
 
     # Continue if all spikes were unassigned
     if not neg_clusters:

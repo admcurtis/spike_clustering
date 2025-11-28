@@ -18,9 +18,9 @@ for ppt_dir in */; do
         css-extract --matfile $mat_file;
     done
 
-    # css-find-concurrent
-    # css-mask-artifacts
-    # css-plot-extracted
+    css-find-concurrent
+    css-mask-artifacts
+    css-plot-extracted
 
     for directory in ppt*/; do
         cd $directory
